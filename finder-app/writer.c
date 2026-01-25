@@ -1,3 +1,10 @@
+/*Acknowlegments:
+*
+*Assignment 2 - ECEN 5713
+*ChatGPT chat history: https://chatgpt.com/share/697686c4-e834-8006-9905-ef00101edcfd
+*Geeks for geeks - https://www.geeksforgeeks.org/c/input-output-system-calls-c-create-open-close-read-write/  
+*
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
