@@ -16,7 +16,14 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
+    if(cmd == NULL){
+	return false;
+    }
 
+    int stat = system(cmd);
+    if(stat == -1){
+	return false;
+    }	
     return true;
 }
 
@@ -60,8 +67,44 @@ bool do_exec(int count, ...)
 */
 
     va_end(args);
+    
+    if((command[0] == NULL) ||(command[0][0] != '\'){
+	return false;
+    }
 
-    return true;
+    fflush(stdout);
+
+    pid_t pid = fork();
+
+    if(pid < 0){
+	return false;
+    }
+
+    if(pid == 0){
+	int fd = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if(fd<0){
+  	   exit(EXIT_FAILURE);
+	}
+
+	if(dup2(fd, STDOUT_FILENO) < 0 ){
+	   close(fd);
+           exit(EXIT_FAILURE);
+	}
+
+	close(fd);
+
+	execv(command[0], command);
+	exit(EXIT_FAILURE);
+    }
+
+    int stat = 0;
+    if(waitpid(pid, &status, 0) < 0){
+	return false;
+	}
+  
+    return (WIFEXITED(status) && (WEXITSTATUS(status) == 0));
+
+    //return true;
 }
 
 /**
