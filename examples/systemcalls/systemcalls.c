@@ -4,6 +4,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <stdbool.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -25,15 +27,20 @@ bool do_system(const char *cmd)
 	return false;
     }
 
-    int stat = system(cmd);
-    if(stat == -1){
+    int ret = system(cmd);
+    if(ret == -1){
 	return false;
     }	
-    return true;
+    if(WIFEXITED(ret) && WEXITSTATUS(ret) == 0){
+	return true;
+    }
+   
+    return false;
 }
 
 /**
-* @param count -The numbers of variables passed to the function. The variables are command to execute.
+* @param 
+count -The numbers of variables passed to the function. The variables are command to execute.
 *   followed by arguments to pass to the command
 *   Since exec() does not perform path expansion, the command to execute needs
 *   to be an absolute path.
@@ -48,8 +55,11 @@ bool do_system(const char *cmd)
 
 bool do_exec(int count, ...)
 {
+    if (count < 1) return false;
+
     va_list args;
     va_start(args, count);
+
     char * command[count+1];
     int i;
     for(i=0; i<count; i++)
@@ -72,10 +82,6 @@ bool do_exec(int count, ...)
 */
 
     va_end(args);
-
-    if(command[0] == NULL || command[0][0] != '\'){
-	return false;
-    }
 
     fflush(stdout);
 
@@ -107,8 +113,13 @@ bool do_exec(int count, ...)
 */
 bool do_exec_redirect(const char *outputfile, int count, ...)
 {
+    if(outputfile == NULL){
+	return false;
+    }
+
     va_list args;
     va_start(args, count);
+
     char * command[count+1];
     int i;
     for(i=0; i<count; i++)
@@ -131,10 +142,6 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     va_end(args);
 	
-    if(command[0] == NULL || command[0][0] != '\'){
-	return false;
-    }
- 
     fflush(stdout);
     pid_t pid = fork();
     if(pid < 0){
@@ -147,12 +154,9 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 		exit(EXIT_FAILURE);
 	}
 
-	if(dup2(fd, STDOUT_FILENO) < 0){
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
-	close(fd);
-
+	dup2(fd, STDOUT_FILENO);
+        close(fd);
+	
 	execv(command[0], command);
 	exit(EXIT_FAILURE);
     }
@@ -162,6 +166,6 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 	return false;
     }
 
-    return (WIFEXITED(stat) && WEXITSTATUS(stat) == 0));
+    return((WIFEXITED(stat) && WEXITSTATUS(stat) == 0));
     //return true;
 }
