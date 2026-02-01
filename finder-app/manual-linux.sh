@@ -1,6 +1,8 @@
 #!/bin/bash
 # Script outline to install and build kernel.
 # Author: Siddhant Jajoo.
+# Acknowledgements:  https://chatgpt.com/c/697f9941-2c94-8327-909e-67a04fe99a42
+# The chatgpt link is mostly a loop of me trying to debug one error. Turns out there was a problem with my shebang in finder.sh
 
 set -e
 set -u
