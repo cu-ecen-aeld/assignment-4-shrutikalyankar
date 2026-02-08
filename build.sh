@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 #Script to build buildroot configuration
 #Author: Siddhant Jajoo
 
 source shared.sh
 
 EXTERNAL_REL_BUILDROOT=../base_external
+export BR2_EXTERNAL=${EXTERNAL_REL_BUILDROOT}
 git submodule init
 git submodule sync
 git submodule update
